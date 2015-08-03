@@ -12,8 +12,8 @@ class NeuralNetwork:
         self.weights = [np.random.randn(size, previous_size) for
                         size, previous_size in zip(sizes[1:], sizes[:-1])]
 
-    def forward_propogate(self, input):
-        a = to_column_vector(input)
+    def forward_propagate(self, input_layer):
+        a = to_column_vector(input_layer)
         for b, w in zip(self.biases, self.weights):
             a = sigmoid(w.dot(a) + b)
         return a

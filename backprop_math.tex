@@ -1,0 +1,92 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage{parskip}
+\usepackage{amsmath}
+
+\title{Backpropagation Mathematics}
+\author{Brady Neal}
+\date{August 2015}
+
+\begin{document}
+
+\maketitle
+
+\section{Definitions}
+
+If you are ever reading through the math in here and realize you don't know what something such as $w_{ij}^l$ means, just come back to this section and you'll find a concise definition.
+
+Superscripts will always refer to the layer, and subscripts will always refer to the neuron in that layer. All indexing will start from 1, not 0.
+
+The activation function used is the sigmoid function:
+\[\sigma(z) = \frac{1}{1 + e^{-z}}\]
+
+$b_i^l$ - bias of the $i$\textsuperscript{th} neuron in the $l$\textsuperscript{th} layer
+
+$w_{ij}^l$ - weight from the $j$\textsuperscript{th} neuron in layer $l - 1$ to the $i$\textsuperscript{th} neuron in layer $l$
+
+$z_i^l$ - weighted input to the activation function of the $i$\textsuperscript{th} neuron in the $l$\textsuperscript{th} layer
+\[z_i^l = \sum_j w_{ij}^l a_j^{l - 1} + b_i^l\]
+Vectorized version:
+\[z^l = w^l a^{l - 1} + b^l\]
+
+$a_i^l$ - activation of the $i$\textsuperscript{th} neuron in the $l$\textsuperscript{th} layer
+\[a_i^l = \sigma(z_i^l) = \sigma\left(\sum_j w_{ij}^l a_j^{l - 1} + b_i^l\right)\]
+Vectorized version:
+\[a^l = \sigma(z^l) = \sigma(w^l a^{l - 1} + b^l)\]
+
+$L$ - number of layers in the neural network
+
+$\odot$ - the Hadamard product operator (element-wise multiplication between n-dimensional arrays)
+
+The cost function used is the cross entropy error function:
+\[C = \]
+
+\section{Proofs}
+
+Because we want to find the weights and biases that will minimize the cost function, the ultimate goal of backpropagation is to find the following:
+\[\frac{\partial C}{\partial w_{ij}^l} \text{ and } \frac{\partial C}{\partial b_i^l}\]
+We need to get four fundamental equations first:
+\begin{flalign}
+&\delta_i^L = \frac{\partial C}{\partial a_i^L} \sigma'(z_i^L)
+\qquad \qquad \qquad \quad
+\delta^L = \nabla_a C \odot \sigma'(z^L) \\
+&\delta_j^l = \sum_i w_{ij}^{l + 1} \delta_i^{l + 1} \sigma'(z_j^l)
+\qquad \qquad
+\delta^l = \left(\left(w^{l + 1}\right)^T \delta^{l + 1}\right) \odot \sigma'(z^l) \\
+&\frac{\partial C}{\partial w_{ij}^l} = \delta_i^l a_j^{l - 1} \\
+&\frac{\partial C}{\partial b_i^l} = \delta_i^l
+\end{flalign}
+
+\subsection{An Intermediate Quantity: $\delta_i^l$}
+In order to get $\frac{\partial C}{\partial w_{ij}^l}$ and $\frac{\partial C}{\partial b_i^l}$, we must first define an intermediate quantity that we'll call the error:
+\[\delta_i^l = \frac{\partial C}{\partial z_i^l}\]
+The first step is to get the error in the output layer $L$:
+\[\delta_i^L = \frac{\partial C}{\partial z_i^L} = \frac{\partial C}{\partial a_i^L} \frac{d a_i^L}{d z_i^L} \text{ or } \frac{\partial C}{\partial a_i^L} \sigma'(z_i^L)\]
+Vectorized:
+\[\delta^L = \nabla_a C \odot \sigma'(z^L)\]
+Now that we have the error in the output layer, $\delta^L$, we need an equation that relates $\delta^l$ to $\delta^{l + 1}$ in order to inductively solve for $\delta^l$.
+\[\delta_j^l = \frac{\partial C}{\partial z_j^l} = \sum_i \frac{\partial C}{\partial z_i^{l + 1}} \frac{\partial z_i^{l + 1}}{\partial z_j^l} = \sum_i \delta_i^{l + 1} \frac{\partial z_i^{l + 1}}{\partial z_j^l}\]
+In order to get $\frac{\partial z_i^{l + 1}}{\partial z_j^l}$, recall $z_i^{l + 1}$:
+\[z_i^{l + 1} = \sum_j w_{ij}^{l + 1} a_j^l + b_i^{l + 1} = \sum_j w_{ij}^{l + 1} \sigma(z_j^l) + b_i^{l + 1}\]
+\[\frac{\partial z_i^{l + 1}}{\partial z_j^l} = w_{ij}^{l + 1} \sigma'(z_j^l)\]
+Thus,
+\[\delta_j^l = \sum_i \delta_i^{l + 1} \frac{\partial z_i^{l + 1}}{\partial z_j^l} = \sum_i \delta_i^{l + 1} w_{ij}^{l + 1} \sigma'(z_j^l) = \sum_i w_{ij}^{l + 1} \delta_i^{l + 1} \sigma'(z_j^l)\]
+Vectorized:
+\[\delta^l = \left(\left(w^{l + 1}\right)^T \delta^{l + 1}\right) \odot \sigma'(z^l)\]
+
+\subsection{$\frac{\partial C}{\partial w_{ij}^l}$ and $\frac{\partial C}{\partial b_i^l}$ in terms of $\delta_i^l$}
+
+\[\frac{\partial C}{\partial w_{ij}^l} = \frac{\partial C}{\partial z_i^l} \frac{\partial z_i^l}{\partial w_{ij}^l} = \delta_i^l \frac{\partial z_i^l}{\partial w_{ij}^l}\]
+\[\frac{\partial C}{\partial b_i^l} = \frac{\partial C}{\partial z_i^l} \frac{\partial z_i^l}{\partial b_i^l} = \delta_i^l \frac{\partial z_i^l}{\partial b_i^l}\]
+In order to get $\frac{\partial z_i^l}{\partial w_{ij}^l}$ and $\frac{\partial C}{\partial b_i^l}$, recall $z_i^l$:
+\[z_i^l = \sum_j w_{ij}^l a_j^{l - 1} + b_i^l\]
+\[\frac{\partial z_i^l}{\partial w_{ij}^l} = a_j^{l - 1}
+\qquad \qquad 
+\frac{\partial z_i^l}{\partial b_i^l} = 1\]
+Thus,
+\[\frac{\partial C}{\partial w_{ij}^l} = \delta_i^l \frac{\partial z_i^l}{\partial w_{ij}^l} = \delta_i^l a_j^{l - 1}\]
+\[\frac{\partial C}{\partial b_i^l} = \delta_i^l \frac{\partial z_i^l}{\partial b_i^l} = \delta_i^l\]
+
+
+\end{document}

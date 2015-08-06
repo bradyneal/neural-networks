@@ -79,7 +79,7 @@ Vectorized:
 
 \[\frac{\partial C}{\partial w_{ij}^l} = \frac{\partial C}{\partial z_i^l} \frac{\partial z_i^l}{\partial w_{ij}^l} = \delta_i^l \frac{\partial z_i^l}{\partial w_{ij}^l}\]
 \[\frac{\partial C}{\partial b_i^l} = \frac{\partial C}{\partial z_i^l} \frac{\partial z_i^l}{\partial b_i^l} = \delta_i^l \frac{\partial z_i^l}{\partial b_i^l}\]
-In order to get $\frac{\partial z_i^l}{\partial w_{ij}^l}$ and $\frac{\partial C}{\partial b_i^l}$, recall $z_i^l$:
+In order to get $\frac{\partial z_i^l}{\partial w_{ij}^l}$ and $\frac{\partial z_i^l}{\partial b_i^l}$, recall $z_i^l$:
 \[z_i^l = \sum_j w_{ij}^l a_j^{l - 1} + b_i^l\]
 \[\frac{\partial z_i^l}{\partial w_{ij}^l} = a_j^{l - 1}
 \qquad \qquad 

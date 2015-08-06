@@ -40,7 +40,8 @@ $L$ - number of layers in the neural network
 $\odot$ - the Hadamard product operator (element-wise multiplication between n-dimensional arrays)
 
 The cost function used is the cross entropy error function:
-\[C = \]
+\[C = - \frac{1}{m} \sum_{i = 1}^m \left(y^{(i)} \ln a^{(i)} + \left(1 - y^{(i)}\right) \ln \left(1 - a^{(i)}\right)\right)\]
+where $m$ is the number of training examples, $a^{(i)}$ is the output layer of the neural network for the $i$\textsuperscript{th} training example, and $y^{(i)}$ is the correct output for the $i$\textsuperscript{th} training example.
 
 \section{Proofs}
 
@@ -88,5 +89,33 @@ Thus,
 \[\frac{\partial C}{\partial w_{ij}^l} = \delta_i^l \frac{\partial z_i^l}{\partial w_{ij}^l} = \delta_i^l a_j^{l - 1}\]
 \[\frac{\partial C}{\partial b_i^l} = \delta_i^l \frac{\partial z_i^l}{\partial b_i^l} = \delta_i^l\]
 
+\section{Specific Activation Function and Cost Function}
+
+All of the math in the previous section refers to the activation function as $\sigma$ and the cost function as $C$. Because we defined a specific activation function and cost function at the beginning of the paper, we will now work out the math that will be necessary for an implementation of backpropagation.
+
+In other words, $\sigma'(z_i^L)$ and $\frac{\partial C}{\partial a_i^L}$ are part of the fundamental equations above, so we'll calculate them with respect to our chosen activation function and cost function.
+
+\subsection{Derivative of The Sigmoid Function}
+Recall the sigmoid function:
+\[\sigma(z) = \frac{1}{1 + e^{-z}} = \left(1 + e^{-z}\right)^{-1}\]
+\[\sigma'(z) = -\left(1 + e^{-z}\right)^{-2} \cdot -e^{-z} = e^{-z} \left(1 + e^{-z}\right)^{-2}\]
+\[\sigma'(z) = \frac{e^{-z}}{\left(1 + e^{-z}\right)^{2}} = \frac{1}{1 + e^{-z}} \cdot \frac{e^{-z}}{1 + e^{-z}}\]
+\[\sigma'(z) = \frac{1}{1 + e^{-z}} \left(1 - \frac{1}{1 + e^{-z}}\right)\]
+Thus,
+\[\sigma'(z) = \sigma(z) \left(1 - \sigma(z)\right)\]
+
+\subsection{Partial Derivative of The Cross Entropy Error Function}
+Recall the cross entropy error function:
+\[C = - \frac{1}{m} \sum_{i = 1}^m \left(y^{(i)} \ln a^{(i)} + \left(1 - y^{(i)}\right) \ln \left(1 - a^{(i)}\right)\right)\]
+where $m$ is the number of training examples, $a^{(i)}$ is the output layer of the neural network for the $i$\textsuperscript{th} training example, and $y^{(i)}$ is the correct output for the $i$\textsuperscript{th} training example.
+\[\frac{\partial C}{\partial a^{(i)}} = -\left(y^{(i)} \cdot \frac{1}{a^{(i)}} + \left(1 - y^{(i)}\right) \cdot \frac{1}{1 - a^{(i)}} \cdot -1\right)\]
+\[\frac{\partial C}{\partial a^{(i)}} = \frac{\left(1 - y^{(i)}\right)}{1 - a^{(i)}} - \frac{y^{(i)}}{a^{(i)}} = \frac{a^{(i)}\left(1 - y^{(i)}\right) - y^{(i)}\left(1 - a^{(i)}\right)}{a^{(i)} \left(1 - a^{(i)}\right)}\]
+\[\frac{\partial C}{\partial a^{(i)}} = \frac{a^{(i)} - a^{(i)} y^{(i)} - y^{(i)} + a^{(i)} y^{(i)}}{a^{(i)} \left(1 - a^{(i)}\right)}\]
+Thus,
+\[\frac{\partial C}{\partial a^{(i)}} = \frac{a^{(i)} - y^{(i)}}{a^{(i)} \left(1 - a^{(i)}\right)}\]
+Notice that the denominator looks quite familiar. Recall $a^{(i)} = \sigma\left(z^L\right)^{(i)}$, and we can relate the function to $\sigma'$ (let's drop the indices for simplicity):
+\[\frac{\partial C}{\partial a} = \frac{a - y}{a (1 - a)} = \frac{a - y}{\sigma(z) \left(1 - \sigma(z)\right)} = \frac{a - y}{\sigma'(z)}\]
+So if we ever had to find $\frac{\partial C}{\partial a} \sigma'(z)$, we'd magically get
+\[\frac{\partial C}{\partial a} \sigma'(z) = \frac{a - y}{\sigma'(z)} \sigma'(z) = a - y\]
 
 \end{document}

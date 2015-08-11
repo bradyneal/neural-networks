@@ -34,6 +34,7 @@ class NeuralNetwork:
         total_weight_gradient = [np.zeros(w.shape) for w in self.weights]
         for features, y in mini_batch:
             activations = self.forward_propagate(features, True)
+            # TODO: add output_layer_to_prediction function as argument
             bias_gradient, weight_gradient = self.back_propagate(features, y,
                                                                  activations)
             total_bias_gradient = add_lists(total_bias_gradient, bias_gradient)
@@ -47,8 +48,21 @@ class NeuralNetwork:
                                                total_weight_gradient,
                                                learning_rate, mini_batch_size)
 
-    def back_propagate(self, features, y, activations):
-        pass
+    def back_propagate(self, features, y, activations,
+                       output_layer_to_prediction):
+        output_error = output_layer_to_prediction(activations[-1]) - y
+        delta = [np.zeros(size, 1) for size in self.sizes[1:]]
+        delta[-1] = column_vector(np.repeat(output_error, self.sizes[-1]))
+        weight_gradient = [np.zeros(size, previous_size)
+                           for size, previous_size in
+                           zip(self.sizes[1:], self.sizes[:-1])]
+        for i in range(len(delta) - 2, -1, -1):
+            # len(activations) = len(weights) + 1 = len(biases) + 1
+            i_activ = i + 1
+            sigmoid_prime = activations[i_activ] * (1 - activations[i_activ])
+            delta[i] = self.weights[i + 1].T.dot(delta[i + 1]) * sigmoid_prime
+            weight_gradient[i] = delta[i].dot(activations[i_activ - 1].T)
+        return delta, weight_gradient
 
 
 def sigmoid(z):

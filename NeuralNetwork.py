@@ -34,9 +34,7 @@ class NeuralNetwork:
         total_weight_gradient = [np.zeros(w.shape) for w in self.weights]
         for features, y in mini_batch:
             activations = self.forward_propagate(features, True)
-            # TODO: add output_layer_to_prediction function as argument
-            bias_gradient, weight_gradient = self.back_propagate(features, y,
-                                                                 activations)
+            bias_gradient, weight_gradient = self.back_propagate(activations, y)
             total_bias_gradient = add_lists(total_bias_gradient, bias_gradient)
             total_weight_gradient = add_lists(total_weight_gradient,
                                               weight_gradient)
@@ -48,21 +46,19 @@ class NeuralNetwork:
                                                total_weight_gradient,
                                                learning_rate, mini_batch_size)
 
-    def back_propagate(self, features, y, activations,
-                       output_layer_to_prediction):
-        output_error = output_layer_to_prediction(activations[-1]) - y
-        delta = [np.zeros(size, 1) for size in self.sizes[1:]]
-        delta[-1] = column_vector(np.repeat(output_error, self.sizes[-1]))
-        weight_gradient = [np.zeros(size, previous_size)
-                           for size, previous_size in
-                           zip(self.sizes[1:], self.sizes[:-1])]
-        for i in range(len(delta) - 2, -1, -1):
-            # len(activations) = len(weights) + 1 = len(biases) + 1
-            i_activ = i + 1
-            sigmoid_prime = activations[i_activ] * (1 - activations[i_activ])
-            delta[i] = self.weights[i + 1].T.dot(delta[i + 1]) * sigmoid_prime
-            weight_gradient[i] = delta[i].dot(activations[i_activ - 1].T)
-        return delta, weight_gradient
+    def back_propagate(self, activations, y):
+        bias_gradient = [np.zeros(b.shape) for b in self.biases]
+        weight_gradient = [np.zeros(w.shape) for w in self.weights]
+        delta = activations[-1] - y
+        bias_gradient[-1] = delta
+        weight_gradient[-1] = delta.dot(activations[-2].T)
+        # using negative indexing because len(activations) = len(weights) + 1
+        for l in range(2, self.num_layers):
+            sigmoid_prime = activations[-l] * (1 - activations[-l])
+            delta = self.weights[-l + 1].T.dot(delta) * sigmoid_prime
+            bias_gradient[-l] = delta
+            weight_gradient[-l] = delta.dot(activations[-l - 1].T)
+        return bias_gradient, weight_gradient
 
 
 def sigmoid(z):

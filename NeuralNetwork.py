@@ -49,17 +49,18 @@ class NeuralNetwork:
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
-def column_vector(L):
-    L = np.array(L)
-    L.shape = (len(L), 1)
-    return L
+def column_vector(list0):
+    list0 = np.array(list0)
+    list0.shape = (len(list0), 1)
+    return list0
 
-def randomly_partition(L, partition_size):
-    random.shuffle(L)
-    return (L[i:i + partition_size] for i in range(0, len(L), partition_size))
+def randomly_partition(list0, partition_size):
+    random.shuffle(list0)
+    return (list0[i:i + partition_size] for
+            i in range(0, len(list0), partition_size))
 
-def add_lists(L1, L2):
-    return [x1 + x2 for x1, x2 in zip(L1, L2)]
+def add_lists(list1, list2):
+    return [x1 + x2 for x1, x2 in zip(list1, list2)]
 
 def gradient_descent_update(initial, gradient, learning_rate, num_examples):
     return [initial_x - (learning_rate / num_examples * derivative)

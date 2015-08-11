@@ -13,11 +13,14 @@ class NeuralNetwork:
         self.weights = [np.random.randn(size, previous_size) for
                         size, previous_size in zip(sizes[1:], sizes[:-1])]
 
-    def forward_propagate(self, input_layer):
+    def forward_propagate(self, input_layer, store_activations=False):
         a = column_vector(input_layer)
+        activations = [a]
         for b, w in zip(self.biases, self.weights):
             a = sigmoid(w.dot(a) + b)
-        return a
+            if store_activations:
+                activations.append(a)
+        return activations if store_activations else a
 
     def mini_batch_gradient_descent(self, training_data, mini_batch_size,
                                     learning_rate, num_iterations):
@@ -30,7 +33,9 @@ class NeuralNetwork:
         total_bias_gradient = [np.zeros(b.shape) for b in self.biases]
         total_weight_gradient = [np.zeros(w.shape) for w in self.weights]
         for features, y in mini_batch:
-            bias_gradient, weight_gradient = self.back_propagate(features, y)
+            activations = self.forward_propagate(features, True)
+            bias_gradient, weight_gradient = self.back_propagate(features, y,
+                                                                 activations)
             total_bias_gradient = add_lists(total_bias_gradient, bias_gradient)
             total_weight_gradient = add_lists(total_weight_gradient,
                                               weight_gradient)
@@ -42,7 +47,7 @@ class NeuralNetwork:
                                                total_weight_gradient,
                                                learning_rate, mini_batch_size)
 
-    def back_propagate(self, features, y):
+    def back_propagate(self, features, y, activations):
         pass
 
 

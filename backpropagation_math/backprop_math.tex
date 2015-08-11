@@ -48,16 +48,20 @@ where $m$ is the number of training examples, $a^{(i)}$ is the output layer of t
 Because we want to find the weights and biases that will minimize the cost function, the ultimate goal of backpropagation is to find the following:
 \[\frac{\partial C}{\partial w_{ij}^l} \text{ and } \frac{\partial C}{\partial b_i^l}\]
 We need to get four fundamental equations first:
-\begin{flalign}
+\begin{flalign*}
 &\delta_i^L = \frac{\partial C}{\partial a_i^L} \sigma'(z_i^L)
 \qquad \qquad \qquad \quad
 \delta^L = \nabla_a C \odot \sigma'(z^L) \\
 &\delta_j^l = \sum_i w_{ij}^{l + 1} \delta_i^{l + 1} \sigma'(z_j^l)
 \qquad \qquad
 \delta^l = \left(\left(w^{l + 1}\right)^T \delta^{l + 1}\right) \odot \sigma'(z^l) \\
-&\frac{\partial C}{\partial w_{ij}^l} = \delta_i^l a_j^{l - 1} \\
+&\frac{\partial C}{\partial w_{ij}^l} = \delta_i^l a_j^{l - 1} 
+\qquad \qquad \qquad \qquad
+\frac{\partial C}{\partial w^l} = \delta^l \left(a^{l - 1}\right)^T \\
 &\frac{\partial C}{\partial b_i^l} = \delta_i^l
-\end{flalign}
+\qquad \qquad \qquad \qquad \qquad \enspace
+\frac{\partial C}{\partial b^l} = \delta^l
+\end{flalign*}
 
 \subsection{An Intermediate Quantity: $\delta_i^l$}
 In order to get $\frac{\partial C}{\partial w_{ij}^l}$ and $\frac{\partial C}{\partial b_i^l}$, we must first define an intermediate quantity that we'll call the error:
@@ -88,6 +92,9 @@ In order to get $\frac{\partial z_i^l}{\partial w_{ij}^l}$ and $\frac{\partial z
 Thus,
 \[\frac{\partial C}{\partial w_{ij}^l} = \delta_i^l \frac{\partial z_i^l}{\partial w_{ij}^l} = \delta_i^l a_j^{l - 1}\]
 \[\frac{\partial C}{\partial b_i^l} = \delta_i^l \frac{\partial z_i^l}{\partial b_i^l} = \delta_i^l\]
+Vectorized:
+\[\frac{\partial C}{\partial w^l} = \delta^l \left(a^{l - 1}\right)^T\]
+\[\frac{\partial C}{\partial b^l} = \delta^l\]
 
 \section{Specific Activation Function and Cost Function}
 
@@ -117,5 +124,32 @@ Notice that the denominator looks quite familiar. Recall $a^{(i)} = \sigma\left(
 \[\frac{\partial C}{\partial a} = \frac{a - y}{a (1 - a)} = \frac{a - y}{\sigma(z) \left(1 - \sigma(z)\right)} = \frac{a - y}{\sigma'(z)}\]
 So if we ever had to find $\frac{\partial C}{\partial a} \sigma'(z)$, we'd magically get
 \[\frac{\partial C}{\partial a} \sigma'(z) = \frac{a - y}{\sigma'(z)} \sigma'(z) = a - y\]
+
+\subsection{Rewriting the Four Fundamental Equations}
+Now that we know $\sigma'(z)$ and $\frac{\partial C}{\partial a}$ for our specific activation function and cost function, we can rewrite the backpropogation equations more specifically.
+
+Here are their more generalized versions:
+\begin{flalign*}
+&\delta_i^L = \frac{\partial C}{\partial a_i^L} \sigma'(z_i^L)
+\qquad \qquad \qquad \quad
+\delta^L = \nabla_a C \odot \sigma'(z^L) \\
+&\delta_j^l = \sum_i w_{ij}^{l + 1} \delta_i^{l + 1} \sigma'(z_j^l)
+\qquad \qquad
+\delta^l = \left(\left(w^{l + 1}\right)^T \delta^{l + 1}\right) \odot \sigma'(z^l) \\
+&\frac{\partial C}{\partial w_{ij}^l} = \delta_i^l a_j^{l - 1} 
+\qquad \qquad \qquad \qquad
+\frac{\partial C}{\partial w^l} = \delta^l \left(a^{l - 1}\right)^T \\
+&\frac{\partial C}{\partial b_i^l} = \delta_i^l
+\qquad \qquad \qquad \qquad \qquad \enspace
+\frac{\partial C}{\partial b^l} = \delta^l
+\end{flalign*}
+
+Here are their more specific versions:
+\begin{flalign*}
+&\delta^L = a^L - y \\
+&\delta^l = \left(\left(w^{l + 1}\right)^T \delta^{l + 1}\right) \odot \left(a^l \odot \left(1 - a^l\right)\right) \\
+&\frac{\partial C}{\partial w^l} = \delta^l \left(a^{l - 1}\right)^T \\
+&\frac{\partial C}{\partial b^l} = \delta^l
+\end{flalign*}
 
 \end{document}

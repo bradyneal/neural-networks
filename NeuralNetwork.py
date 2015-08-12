@@ -23,11 +23,19 @@ class NeuralNetwork:
         return activations if store_activations else a
 
     def mini_batch_gradient_descent(self, training_data, mini_batch_size,
-                                    learning_rate, num_iterations):
+                                    learning_rate, num_iterations,
+                                    test_data=None):
         for iteration in range(num_iterations):
             mini_batches = randomly_partition(training_data, mini_batch_size)
             for mini_batch in mini_batches:
                 self.mini_batch_update(mini_batch, learning_rate)
+            if test_data:
+                print("Iteration {0}: {1}".format(
+                    iteration, self.evaluate(test_data) / len(test_data)))
+            else:
+                print("Iteration {0} of {1} complete...".format(
+                    iteration, num_iterations))
+
 
     def mini_batch_update(self, mini_batch, learning_rate):
         total_bias_gradient = [np.zeros(b.shape) for b in self.biases]
@@ -59,6 +67,11 @@ class NeuralNetwork:
             bias_gradient[-l] = delta
             weight_gradient[-l] = delta.dot(activations[-l - 1].T)
         return bias_gradient, weight_gradient
+
+    def evaluate(self, test_data):
+        test_results = [(np.argmax(self.forward_propagate(features)), y)
+                        for features, y in test_data]
+        return sum(1 for prediction, y in test_results if prediction == y)
 
 
 def sigmoid(z):

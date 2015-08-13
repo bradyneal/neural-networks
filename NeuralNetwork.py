@@ -22,20 +22,19 @@ class NeuralNetwork:
                 activations.append(a)
         return activations if store_activations else a
 
-    def mini_batch_gradient_descent(self, training_data, mini_batch_size,
-                                    learning_rate, num_iterations,
+    def mini_batch_gradient_descent(self, training_data, num_iterations,
+                                    mini_batch_size, learning_rate,
                                     test_data=None):
         for iteration in range(num_iterations):
             mini_batches = randomly_partition(training_data, mini_batch_size)
             for mini_batch in mini_batches:
                 self.mini_batch_update(mini_batch, learning_rate)
-            if test_data:
-                print("Iteration {0}: {1}".format(
-                    iteration, self.evaluate(test_data) / len(test_data)))
-            else:
+            if test_data is None:
                 print("Iteration {0} of {1} complete...".format(
                     iteration, num_iterations))
-
+            else:
+                print("Iteration {0}: {1} / {2}".format(
+                    iteration, self.evaluate(test_data), len(test_data)))
 
     def mini_batch_update(self, mini_batch, learning_rate):
         total_bias_gradient = [np.zeros(b.shape) for b in self.biases]
@@ -78,9 +77,8 @@ def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
 def column_vector(list0):
-    list0 = np.array(list0)
-    list0.shape = (len(list0), 1)
-    return list0
+    arr = np.array(list0)
+    return arr.reshape(arr.size, 1)
 
 def randomly_partition(list0, partition_size):
     random.shuffle(list0)

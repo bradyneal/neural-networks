@@ -68,9 +68,11 @@ class NeuralNetwork:
         return bias_gradient, weight_gradient
 
     def evaluate(self, test_data):
-        test_results = [(np.argmax(self.forward_propagate(features)), y)
-                        for features, y in test_data]
-        return sum(1 for prediction, y in test_results if prediction == y)
+        return sum(int(self.predict(features) == y)
+                   for features, y in test_data)
+
+    def predict(self, input_layer):
+        return np.argmax(self.forward_propagate(input_layer))
 
 
 def sigmoid(z):

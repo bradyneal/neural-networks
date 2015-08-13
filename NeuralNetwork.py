@@ -39,9 +39,10 @@ class NeuralNetwork:
     def mini_batch_update(self, mini_batch, learning_rate):
         total_bias_gradient = [np.zeros(b.shape) for b in self.biases]
         total_weight_gradient = [np.zeros(w.shape) for w in self.weights]
-        for features, y in mini_batch:
+        for features, y_vector in mini_batch:
             activations = self.forward_propagate(features, True)
-            bias_gradient, weight_gradient = self.back_propagate(activations, y)
+            bias_gradient, weight_gradient = self.back_propagate(activations,
+                                                                 y_vector)
             total_bias_gradient = add_lists(total_bias_gradient, bias_gradient)
             total_weight_gradient = add_lists(total_weight_gradient,
                                               weight_gradient)
@@ -53,10 +54,10 @@ class NeuralNetwork:
                                                total_weight_gradient,
                                                learning_rate, mini_batch_size)
 
-    def back_propagate(self, activations, y):
+    def back_propagate(self, activations, y_vector):
         bias_gradient = [np.zeros(b.shape) for b in self.biases]
         weight_gradient = [np.zeros(w.shape) for w in self.weights]
-        delta = activations[-1] - y
+        delta = activations[-1] - y_vector
         bias_gradient[-1] = delta
         weight_gradient[-1] = delta.dot(activations[-2].T)
         # using negative indexing because len(activations) = len(weights) + 1

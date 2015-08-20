@@ -18,9 +18,6 @@ If you are ever reading through the math in here and realize you don't know what
 
 Superscripts will always refer to the layer, and subscripts will always refer to the neuron in that layer. All indexing will start from 1, not 0.
 
-The activation function used is the sigmoid function:
-\[\sigma(z) = \frac{1}{1 + e^{-z}}\]
-
 $b_i^l$ - bias of the $i$\textsuperscript{th} neuron in the $l$\textsuperscript{th} layer
 
 $w_{ij}^l$ - weight from the $j$\textsuperscript{th} neuron in layer $l - 1$ to the $i$\textsuperscript{th} neuron in layer $l$
@@ -30,6 +27,9 @@ $z_i^l$ - weighted input to the activation function of the $i$\textsuperscript{t
 Vectorized version:
 \[z^l = w^l a^{l - 1} + b^l\]
 
+The activation function used is the sigmoid function:
+\[\sigma(z) = \frac{1}{1 + e^{-z}}\]
+
 $a_i^l$ - activation of the $i$\textsuperscript{th} neuron in the $l$\textsuperscript{th} layer
 \[a_i^l = \sigma(z_i^l) = \sigma\left(\sum_j w_{ij}^l a_j^{l - 1} + b_i^l\right)\]
 Vectorized version:
@@ -37,11 +37,26 @@ Vectorized version:
 
 $L$ - number of layers in the neural network
 
+$x^{(i)}$ - feature vector corresponding to the $i$\textsuperscript{th} training example
+
+$y^{(i)}$ - correct output value for the $i$\textsuperscript{th} training example
+
+$a = a^L$ - hypothesis (prediction) of the neural network for a training example (i.e. $a^{(i)}$ is the neural network output that corresponds to $x^{(i)}$)
+
 $\odot$ - the Hadamard product operator (element-wise multiplication between n-dimensional arrays)
 
 The cost function used is the cross entropy error function:
-\[C = - \frac{1}{m} \sum_{i = 1}^m \left(y^{(i)} \ln a^{(i)} + \left(1 - y^{(i)}\right) \ln \left(1 - a^{(i)}\right)\right)\]
+\[C = - \frac{1}{m} \sum_{i = 1}^m \left[y^{(i)} \ln a^{(i)} + (1 - y^{(i)}) \ln \left(1 - a^{(i)}\right)\right]\]
+
 where $m$ is the number of training examples, $a^{(i)}$ is the output layer of the neural network for the $i$\textsuperscript{th} training example, and $y^{(i)}$ is the correct output for the $i$\textsuperscript{th} training example.
+
+The above cost function is over all training examples $x^{(i)}$. Both $y^{(i)}$ and $a^{(i)}$ are commonly vectors, so it is more explicitly written as
+\[C = - \frac{1}{m} \sum_{i = 1}^m \sum_j \left[y_j^{(i)} \ln a_j^{(i)} + (1 - y_j^{(i)}) \ln \left(1 - a_j^{(i)}\right)\right]\]
+where $y_j^{(i)}$ and $a_j^{(i)}$ are the $j$\textsuperscript{th} elements in the $y^{(i)}$ and $a^{(i)}$ vectors respectively.
+
+However, I will mostly be referring to the cost of a single training example in vectorized form, $C_x$:
+\[C_x = y \ln a + (1 - y) \ln (1 - a)\]
+This simplifies the notation a great deal as we no longer have to worry about the many indices and summations. Therefore, when I say $C$ below, I'm often referring to $C_x$.
 
 \section{Proofs}
 
@@ -113,9 +128,9 @@ Thus,
 
 \subsection{Partial Derivative of The Cross Entropy Error Function}
 Recall the cross entropy error function:
-\[C = - \frac{1}{m} \sum_{i = 1}^m \left(y^{(i)} \ln a^{(i)} + \left(1 - y^{(i)}\right) \ln \left(1 - a^{(i)}\right)\right)\]
+\[C = - \frac{1}{m} \sum_{i = 1}^m \left[y^{(i)} \ln a^{(i)} + (1 - y^{(i)}) \ln \left(1 - a^{(i)}\right)\right]\]
 where $m$ is the number of training examples, $a^{(i)}$ is the output layer of the neural network for the $i$\textsuperscript{th} training example, and $y^{(i)}$ is the correct output for the $i$\textsuperscript{th} training example.
-\[\frac{\partial C}{\partial a^{(i)}} = -\left(y^{(i)} \cdot \frac{1}{a^{(i)}} + \left(1 - y^{(i)}\right) \cdot \frac{1}{1 - a^{(i)}} \cdot -1\right)\]
+\[\frac{\partial C}{\partial a^{(i)}} = -\left(y^{(i)} \cdot \frac{1}{a^{(i)}} + (1 - y^{(i)}) \cdot \frac{1}{1 - a^{(i)}} \cdot -1\right)\]
 \[\frac{\partial C}{\partial a^{(i)}} = \frac{\left(1 - y^{(i)}\right)}{1 - a^{(i)}} - \frac{y^{(i)}}{a^{(i)}} = \frac{a^{(i)}\left(1 - y^{(i)}\right) - y^{(i)}\left(1 - a^{(i)}\right)}{a^{(i)} \left(1 - a^{(i)}\right)}\]
 \[\frac{\partial C}{\partial a^{(i)}} = \frac{a^{(i)} - a^{(i)} y^{(i)} - y^{(i)} + a^{(i)} y^{(i)}}{a^{(i)} \left(1 - a^{(i)}\right)}\]
 Thus,
@@ -151,5 +166,20 @@ Here are their more specific versions:
 &\frac{\partial C}{\partial w^l} = \delta^l \left(a^{l - 1}\right)^T \\
 &\frac{\partial C}{\partial b^l} = \delta^l
 \end{flalign*}
+
+\section{Regularization}
+In order to reduce overfitting, we're going to add L2 regularization to our cost function.
+
+Recall the cross entropy error function that we used as our cost function. We're now going to call this $C_0$:
+\[C_0 = - \frac{1}{m} \sum_{i = 1}^m \left[y^{(i)} \ln a^{(i)} + (1 - y^{(i)}) \ln \left(1 - a^{(i)}\right)\right]\]
+Our new cost function with L2 regularization:
+\[C = - \frac{1}{m} \sum_{i = 1}^m \left[y^{(i)} \ln a^{(i)} + (1 - y^{(i)}) \ln \left(1 - a^{(i)}\right)\right] + \frac{\lambda}{2m} \sum_{i = 1}^m \sum_j \sum_k {w_{jk}^{(i)}}^2\]
+Now that we've changed the cost function, we have to figure out how that changes $\frac{\partial C}{\partial w_{jk}^{(i)}}$ and $\frac{\partial C}{\partial b_j^{(i)}}$ Because we already know $\frac{\partial C_0}{\partial w_{jk}^{(i)}}$ and $\frac{\partial C_0}{\partial b_j^{(i)}}$ let's start by rewriting $C$ in terms of $C_0$:
+\[C = C_0 + \frac{\lambda}{2m} \sum_i^m \sum_j \sum_k {w_{jk}^{(i)}}^2\]
+Thus,
+\[\frac{\partial C}{\partial w_{jk}^{(i)}} = \frac{\partial C_0}{\partial w_{jk}^{(i)}} + \frac{d}{d w_{jk}^{(i)}} \frac{\lambda}{2m} {w_{jk}^{(i)}}^2\]
+\[\frac{\partial C}{\partial w_{jk}^{(i)}} = \frac{\partial C_0}{\partial w_{jk}^{(i)}} + \frac{\lambda}{m} w_{jk}^{(i)}\]
+Because, $\frac{\lambda}{2m} \sum\limits_{i = 1}^m \sum\limits_j \sum\limits_k {w_{jk}^{(i)}}^2$ has no dependence on $b_j^{(i)}$,
+\[\frac{\partial C}{\partial b_j^{(i)}} = \frac{\partial C_0}{\partial b_j^{(i)}}\]
 
 \end{document}

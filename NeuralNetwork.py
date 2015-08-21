@@ -29,7 +29,7 @@ class NeuralNetwork:
             mini_batches = randomly_partition(training_data, mini_batch_size)
             for mini_batch in mini_batches:
                 self.mini_batch_update(mini_batch, learning_rate)
-            self.print_progress(test_data, iteration, num_iterations)
+            self.print_progress(iteration, num_iterations, test_data)
 
     def mini_batch_update(self, mini_batch, learning_rate):
         total_bias_gradient = [np.zeros(b.shape) for b in self.biases]
@@ -70,7 +70,7 @@ class NeuralNetwork:
     def predict(self, input_layer):
         return np.argmax(self.forward_propagate(input_layer))
 
-    def print_progress(self, test_data, iteration, num_iterations):
+    def print_progress(self, iteration, num_iterations, test_data=None):
         if test_data is None:
             print("Iteration {0} of {1} complete...".format(
                 iteration, num_iterations))

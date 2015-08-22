@@ -102,6 +102,14 @@ class NeuralNetwork:
             "weights": self.weights,
         }
 
+def load(filename=DEFAULT_STORE_FILENAME):
+    with open(path.join(STORE_FOLDER, filename), "r") as f:
+        nn_dict = json.load(f)
+        neural_network = NeuralNetwork(nn_dict["sizes"])
+        neural_network.biases = [np.array(b) for b in nn_dict["biases"]]
+        neural_network.weights = [np.array(w) for w in nn_dict["weights"]]
+        return neural_network
+
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 

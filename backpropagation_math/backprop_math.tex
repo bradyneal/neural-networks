@@ -179,6 +179,11 @@ Now that we've changed the cost function, we have to figure out how that changes
 Thus,
 \[\frac{\partial C}{\partial w_{jk}^{(i)}} = \frac{\partial C_0}{\partial w_{jk}^{(i)}} + \frac{d}{d w_{jk}^{(i)}} \frac{\lambda}{2m} {w_{jk}^{(i)}}^2\]
 \[\frac{\partial C}{\partial w_{jk}^{(i)}} = \frac{\partial C_0}{\partial w_{jk}^{(i)}} + \frac{\lambda}{m} w_{jk}^{(i)}\]
+Therefore, the new gradient descent update would be:
+\[w_{jk}^{(i)} \leftarrow w_{jk}^{(i)} - \alpha \left( \frac{\partial C_0}{\partial w_{jk}^{(i)}} + \frac{\lambda}{m} w_{jk}^{(i)} \right)\]
+\[w_{jk}^{(i)} \leftarrow \left( 1 - \frac{\alpha \lambda}{m} \right) w_{jk}^{(i)} - \alpha \frac{\partial C_0}{\partial w_{jk}^{(i)}}\]
+where $\alpha$ is the learning rate. \\
+
 Because, $\frac{\lambda}{2m} \sum\limits_{i = 1}^m \sum\limits_j \sum\limits_k {w_{jk}^{(i)}}^2$ has no dependence on $b_j^{(i)}$,
 \[\frac{\partial C}{\partial b_j^{(i)}} = \frac{\partial C_0}{\partial b_j^{(i)}}\]
 

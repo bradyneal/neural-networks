@@ -5,11 +5,11 @@ import random
 import json
 from os import path
 
+STORE_FOLDER = "stored_neural_networks"
+DEFAULT_STORE_FILENAME = "neural_network.json"
+
 
 class NeuralNetwork:
-
-    STORE_FOLDER = "stored_neural_networks"
-    DEFAULT_STORE_FILENAME = "neural_network.json"
 
     def __init__(self, sizes):
         self.num_layers = len(sizes)
@@ -91,8 +91,8 @@ class NeuralNetwork:
         return [(1 - learning_rate * regularization_param / data_size) * w
                 for w in self.weights]
 
-    def save(self, filename=path.join(STORE_FOLDER, DEFAULT_STORE_FILENAME)):
-        with open(filename, "w") as f:
+    def save(self, filename=DEFAULT_STORE_FILENAME):
+        with open(path.join(STORE_FOLDER, filename), "w") as f:
             json.dump(self.get_dict(), f)
 
     def get_dict(self):

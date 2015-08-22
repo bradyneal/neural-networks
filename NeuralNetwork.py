@@ -24,14 +24,16 @@ class NeuralNetwork:
 
     def mini_batch_gradient_descent(self, training_data, num_iterations,
                                     mini_batch_size, learning_rate,
-                                    test_data=None):
+                                    regularization_param=0, test_data=None):
         for iteration in range(num_iterations):
             mini_batches = randomly_partition(training_data, mini_batch_size)
             for mini_batch in mini_batches:
-                self.mini_batch_update(mini_batch, learning_rate)
+                self.mini_batch_update(mini_batch, len(training_data),
+                                       learning_rate, regularization_param)
             self.print_progress(iteration, num_iterations, test_data)
 
-    def mini_batch_update(self, mini_batch, learning_rate):
+    def mini_batch_update(self, mini_batch, training_data_size,
+                          learning_rate, regularization_param):
         total_bias_gradient = [np.zeros(b.shape) for b in self.biases]
         total_weight_gradient = [np.zeros(w.shape) for w in self.weights]
         for features, y_vector in mini_batch:
@@ -45,7 +47,9 @@ class NeuralNetwork:
         self.biases = gradient_descent_update(self.biases,
                                               total_bias_gradient,
                                               learning_rate, mini_batch_size)
-        self.weights = gradient_descent_update(self.weights,
+        scaled_weights = self.weight_decay(learning_rate, regularization_param,
+                                           training_data_size)
+        self.weights = gradient_descent_update(scaled_weights,
                                                total_weight_gradient,
                                                learning_rate, mini_batch_size)
 
@@ -77,6 +81,10 @@ class NeuralNetwork:
         else:
             print("Iteration {0}: {1} / {2}".format(
                 iteration, self.evaluate(test_data), len(test_data)))
+
+    def weight_decay(self, learning_rate, regularization_param, data_size):
+        return [(1 - learning_rate * regularization_param / data_size) * w
+                for w in self.weights]
 
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))

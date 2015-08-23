@@ -98,8 +98,8 @@ class NeuralNetwork:
     def get_dict(self):
         return {
             "sizes": self.sizes,
-            "biases": self.biases,
-            "weights": self.weights,
+            "biases": [b.tolist() for b in self.biases],
+            "weights": [w.tolist() for w in self.weights],
         }
 
 def load(filename=DEFAULT_STORE_FILENAME):

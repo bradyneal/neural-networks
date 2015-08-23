@@ -3,7 +3,9 @@ __author__ = 'brady'
 import numpy as np
 import random
 import json
+
 from os import path
+from math import sqrt
 
 STORE_FOLDER = "stored_neural_networks"
 DEFAULT_STORE_FILENAME = "neural_network.json"
@@ -15,8 +17,9 @@ class NeuralNetwork:
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(size, 1) for size in sizes[1:]]
-        self.weights = [np.random.randn(size, previous_size) for
-                        size, previous_size in zip(sizes[1:], sizes[:-1])]
+        self.weights = [np.random.normal(0, 1 / sqrt(previous_size),
+                                         (size, previous_size))
+                        for size, previous_size in zip(sizes[1:], sizes[:-1])]
 
     def forward_propagate(self, input_layer, store_activations=False):
         a = column_vector(input_layer)
@@ -101,6 +104,7 @@ class NeuralNetwork:
             "biases": [b.tolist() for b in self.biases],
             "weights": [w.tolist() for w in self.weights],
         }
+
 
 def load(filename=DEFAULT_STORE_FILENAME):
     with open(path.join(STORE_FOLDER, filename), "r") as f:
